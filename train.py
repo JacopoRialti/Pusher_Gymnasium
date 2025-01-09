@@ -5,6 +5,9 @@ from env.custom_hopper import *
 from stable_baselines3 import SAC
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.evaluation import evaluate_policy
+
+
+def main(model_name, plot_name, num_episodes, num_timesteps):
     # Create the Hopper environment
     env = gym.make('CustomHopper-source-v0')
 
