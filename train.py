@@ -40,16 +40,16 @@ def reward_info(model, env, episodes=10):
     return mean_reward
 
 
-def plot_rewards(rewards, plot_name):
+def plot_rewards(rewards, model_name):
     plt.plot(rewards)
     plt.xlabel('Timesteps')
     plt.ylabel('Reward')
     plt.title('Training Progress')
-    plt.savefig("sim2real/plots/" + plot_name)
+    plt.savefig("sim2real/plots/" + model_name + ".png")
     plt.show()
 
 
-def main(model_name, plot_name, num_timesteps):
+def main(model_name, num_timesteps):
     # Create the Hopper environment
     env = gym.make('CustomHopper-source-v0')
 
@@ -69,7 +69,7 @@ def main(model_name, plot_name, num_timesteps):
     model.save("sim2real/models/" + model_name)
 
     # Plot the rewards
-    plot_rewards(callback.get_rewards(), plot_name)
+    plot_rewards(callback.get_rewards(), model_name)
 
     # Evaluate the trained model
     mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=10)
@@ -84,7 +84,6 @@ def main(model_name, plot_name, num_timesteps):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train a SAC model on the CustomHopper environment.')
     parser.add_argument('--model_name', type=str, default='model_name', help='The name to save the trained model.')
-    parser.add_argument('--plot_name', type=str, default='plot_name.png', help='The name to save the training plot.')
     parser.add_argument('--num_timesteps', type=int, default=10000, help='The number of timesteps for training.')
     args = parser.parse_args()
-    main(args.model_name, args.plot_name, args.num_timesteps)
+    main(args.model_name, args.num_timesteps)
