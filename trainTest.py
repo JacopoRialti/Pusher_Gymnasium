@@ -10,10 +10,8 @@ from stable_baselines3.common.callbacks import BaseCallback
 
 
 class RewardLoggerCallback(BaseCallback):
-    def __init__(self, log_dir, plot_dir, verbose=0):
+    def __init__(self, verbose=0):
         super(RewardLoggerCallback, self).__init__(verbose)
-        self.log_dir = log_dir
-        self.plot_dir = plot_dir
         self.episode_rewards = []
         self.current_episode_reward = 0
 
