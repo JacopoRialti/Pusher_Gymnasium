@@ -4,16 +4,16 @@ import matplotlib.pyplot as plt
 from env.custom_hopper import *
 from stable_baselines3 import SAC
 from stable_baselines3.common.evaluation import evaluate_policy
-from stable_baselines3.common.callbacks import BaseCallback # Callback class for logging rewards
+from stable_baselines3.common.callbacks import BaseCallback  # Callback class for logging rewards
 
 
-class reward_callback(BaseCallback):
+class RewardCallback(BaseCallback):
     def __init__(self, verbose=0):
-        super(reward_callback, self).__init__(verbose)
+        super(RewardCallback, self).__init__(verbose)
         self.rewards = []
-        
+
     def _on_step(self) -> bool:
-        reward = self.model.rewards
+        reward = self.locals['rewards'][-1]
         self.rewards.append(reward)
         return True
 
@@ -21,7 +21,6 @@ class reward_callback(BaseCallback):
         return self.rewards
 
 
-# ottieni informazioni sulla reward
 def reward_info(model, env, episodes=10):
     total_reward = 0
     num_steps = 0
@@ -48,7 +47,7 @@ def plot_rewards(rewards, plot_name):
     plt.title('Training Progress')
     plt.savefig("sim2real/plots/" + plot_name)
     plt.show()
-    
+
 
 def main(model_name, plot_name, num_timesteps):
     # Create the Hopper environment
@@ -62,15 +61,15 @@ def main(model_name, plot_name, num_timesteps):
     model = SAC('MlpPolicy', env, verbose=1)
 
     # Train the model
-    callback_ep = reward_callback()
-    
-    model.learn(total_timesteps=num_timesteps, reset_num_timesteps=False, callback_ep = callback_ep)
-    
+    callback = RewardCallback()
+
+    model.learn(total_timesteps=num_timesteps, reset_num_timesteps=False, callback=callback)
+
     # Save the model
     model.save("sim2real/models/" + model_name)
 
-    #episode_rewards = callback.get_rewards()
-    plot_rewards(callback_ep.get_rewards(), plot_name)
+    # Plot the rewards
+    plot_rewards(callback.get_rewards(), plot_name)
 
     # Evaluate the trained model
     mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=10)
