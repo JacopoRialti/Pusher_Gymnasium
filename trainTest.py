@@ -15,7 +15,7 @@ class RewardLoggerCallback(BaseCallback):
         self.log_dir = log_dir
         self.plot_dir = plot_dir
         self.episode_rewards = []
-        self.episode_timesteps = []
+        self.current_episode_reward = 0
 
     def _on_step(self) -> bool:
         # Verifica che "episode" sia nei locals
@@ -23,39 +23,33 @@ class RewardLoggerCallback(BaseCallback):
             reward = self.locals["episode"]["r"]
             self.episode_rewards.append(reward)
             self.episode_timesteps.append(self.num_timesteps)
-            if self.verbose > 0:
-                print(f"Timestep: {self.num_timesteps}, Reward: {reward}")
-        else:
-            print("Chiave 'episode' non trovata nei dati locali.")
+            self.current_episode_reward += self.locals["reward"][0]
+
+            if self.locals["episode"][0]:
+                self.episode_rewards.append(self.current_episode_reward)   
+                self.current_episode_reward = 0
+
         return True
+    
+    def get_rewards(self):
+        return self.episode_timesteps, self.episode_rewards
 
-    def _on_training_end(self) -> None:
-        # Salva le ricompense in un file
-        rewards_file = os.path.join(self.log_dir, "rewards.csv")
-        os.makedirs(self.plot_dir, exist_ok=True)
 
-        with open(rewards_file, "w") as f:
-            f.write("Timestep,Reward\n")
-            for t, r in zip(self.episode_timesteps, self.episode_rewards):
-                f.write(f"{t},{r}\n")
-
-        if len(self.episode_rewards) > 0:
-            self.plot_rewards()
-        else:
-            print("Nessuna ricompensa registrata. Impossibile creare il grafico.")
-
-    def plot_rewards(self):
-        plt.figure()
-        plt.plot(self.episode_timesteps, self.episode_rewards, label="Ricompensa per episodio")
-        plt.xlabel("Numero di timesteps")
-        plt.ylabel("Ricompensa")
-        plt.title("Ricompensa durante l'allenamento")
-        plt.legend()
-        plot_path = os.path.join(self.plot_dir, "rewards_plot.png")
-        plt.savefig(plot_path)
-        plt.close()
-        print(f"Grafico delle ricompense salvato in {plot_path}")
-
+def plot_rewards(timesteps, rewards, plot_dir):
+    """
+    Genera un grafico delle ricompense episodiche e lo salva nella directory specificata.
+    """
+    plt.figure()
+    plt.plot(timesteps, rewards, label="Ricompensa per episodio")
+    plt.xlabel("Numero di timesteps")
+    plt.ylabel("Ricompensa")
+    plt.title("Ricompensa durante l'allenamento")
+    plt.legend()
+    os.makedirs(plot_dir, exist_ok=True)
+    plot_path = os.path.join(plot_dir, "rewards_plot.png")
+    plt.savefig(plot_path)
+    plt.show()
+    print(f"Grafico delle ricompense salvato in {plot_path}")
 
 
 def create_model(args, env):
@@ -66,10 +60,10 @@ def create_model(args, env):
 
 def train_model(args, env):
     """Esegue l'allenamento del modello e utilizza la callback per registrare le ricompense."""
-    log_dir = "./tmp/gym/"
+    
     model_dir = "./sim2real/models/"
     plot_dir = "./sim2real/plots/"
-    os.makedirs(log_dir, exist_ok=True)
+
     os.makedirs(model_dir, exist_ok=True)
     os.makedirs(plot_dir, exist_ok=True)
 
@@ -77,7 +71,7 @@ def train_model(args, env):
     model = create_model(args, env)
 
     # Callback per registrare le ricompense
-    reward_logger = RewardLoggerCallback(log_dir, plot_dir)
+    reward_logger = RewardLoggerCallback()
 
     # Avvia l'allenamento
     model.learn(total_timesteps=args.total_timesteps, callback=reward_logger)
@@ -87,7 +81,7 @@ def train_model(args, env):
     model.save(model_path)
     print(f"Modello salvato come {model_path}")
 
-    return model
+    return model, reward_logger
 
 
 def main():
@@ -95,9 +89,11 @@ def main():
     env = gym.make(args.env)
 
     if args.test is None:
-        model = train_model(args, env)
+        model,reward_logger = train_model(args, env)
+        timesteps, rewards = reward_logger.get_rewards()
+        plot_rewards(timesteps, rewards, "./sim2real/plots/")
     else:
-        model = load_model(args, env)
+        model = SAC.load_model(args, env)
         mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=10)
         print(f"Ricompensa media: {mean_reward}, deviazione standard: {std_reward}")
 
