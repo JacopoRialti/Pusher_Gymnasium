@@ -10,6 +10,7 @@ from stable_baselines3.common.results_plotter import load_results, ts2xy
 import numpy as np
 import os
 
+
 def moving_average(values, window):
     """
     Smooth values by doing a moving average
@@ -42,9 +43,6 @@ def plot_results(log_folder, title="Learning Curve"):
 def main(model_save_name, plot_save_name, total_timesteps):
     # Create the Hopper environment
     env = gym.make('CustomHopper-source-v0')
-    log_dir = "./tmp/gym/"
-    os.makedirs(log_dir, exist_ok=True)
-    env = Monitor(env, log_dir)
 
     print('State space:', env.observation_space)  # state-space
     print('Action space:', env.action_space)  # action-space
@@ -60,7 +58,7 @@ def main(model_save_name, plot_save_name, total_timesteps):
     model.save(model_save_name)
 
     # Plot the results
-    plot_results(log_dir, title="Training Progress")
+    plot_results("sim2real/plots/", title="Training Progress")
 
     # Evaluate the trained model
     mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=10)
