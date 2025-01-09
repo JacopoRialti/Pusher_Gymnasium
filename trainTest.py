@@ -14,9 +14,10 @@ class RewardLoggerCallback(BaseCallback):
     Callback per registrare le ricompense durante l'allenamento.
     Salva i risultati in un file CSV e crea un grafico delle ricompense alla fine.
     """
-    def __init__(self, log_dir, verbose=0):
+    def __init__(self, log_dir, plot_dir, verbose=0):
         super(RewardLoggerCallback, self).__init__(verbose)
         self.log_dir = log_dir
+        self.plot_dir = plot_dir
         self.episode_rewards = []
         self.episode_timesteps = []
 
@@ -30,6 +31,8 @@ class RewardLoggerCallback(BaseCallback):
     def _on_training_end(self) -> None:
         # Salva le ricompense in un file
         rewards_file = os.path.join(self.log_dir, "rewards.csv")
+        os.makedirs(self.plot_dir, exist_ok=True)
+
         with open(rewards_file, "w") as f:
             f.write("Timestep,Reward\n")
             for t, r in zip(self.episode_timesteps, self.episode_rewards):
@@ -45,7 +48,7 @@ class RewardLoggerCallback(BaseCallback):
         plt.ylabel("Ricompensa")
         plt.title("Ricompensa durante l'allenamento")
         plt.legend()
-        plot_path = os.path.join(self.log_dir, "rewards_plot.png")
+        plot_path = os.path.join(self.plot_dir, "rewards_plot.png")
         plt.savefig(plot_path)
         plt.close()
         print(f"Grafico delle ricompense salvato in {plot_path}")
@@ -60,20 +63,25 @@ def create_model(args, env):
 def train_model(args, env):
     """Esegue l'allenamento del modello e utilizza la callback per registrare le ricompense."""
     log_dir = "./tmp/gym/"
+    model_dir = "./sim2real/models/"
+    plot_dir = "./sim2real/plots/"
     os.makedirs(log_dir, exist_ok=True)
+    os.makedirs(model_dir, exist_ok=True)
+    os.makedirs(plot_dir, exist_ok=True)
 
     # Crea il modello
     model = create_model(args, env)
 
     # Callback per registrare le ricompense
-    reward_logger = RewardLoggerCallback(log_dir)
+    reward_logger = RewardLoggerCallback(log_dir, plot_dir)
 
     # Avvia l'allenamento
     model.learn(total_timesteps=args.total_timesteps, callback=reward_logger)
 
     # Salva il modello
-    model.save(args.model_name)
-    print(f"Modello salvato come {args.model_name}")
+    model_path = os.path.join(model_dir, args.model_name + ".zip")
+    model.save(model_path)
+    print(f"Modello salvato come {model_path}")
 
     return model
 
