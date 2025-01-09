@@ -4,7 +4,51 @@ import matplotlib.pyplot as plt
 from env.custom_hopper import *
 from stable_baselines3 import SAC
 from stable_baselines3.common.evaluation import evaluate_policy
+from stable_baselines3.common.callbacks import BaseCallback # Callback class for logging rewards
 
+
+class reward_callback(BaseCallback):
+    def __init__(self, verbose=0):
+        super(reward_callback, self).__init__(verbose)
+        self.rewards = []
+        
+    def _on_step(self) -> bool:
+        reward = self.model.rewards
+        self.rewards.append(reward)
+        return True
+
+    def get_rewards(self):
+        return self.rewards
+
+
+# ottieni informazioni sulla reward
+def reward_info(model, env, episodes=10):
+    total_reward = 0
+    num_steps = 0
+
+    obs = env.reset()
+    for i in range(1000):
+        action, _states = model.predict(obs, deterministic=True)
+        obs, reward, done, info = env.step(action)
+        total_reward += reward
+        num_steps += 1
+        print(f"Step: {i}, Reward: {reward}, Done: {done}, Info: {info}")
+        if done:
+            break
+
+    mean_reward = total_reward / num_steps if num_steps > 0 else 0
+    print(f"Mean reward: {mean_reward}")
+    return mean_reward
+
+
+def plot_rewards(rewards, plot_name):
+    plt.plot(rewards)
+    plt.xlabel('Timesteps')
+    plt.ylabel('Reward')
+    plt.title('Training Progress')
+    plt.savefig("sim2real/plots/" + plot_name)
+    plt.show()
+    
 
 def main(model_name, plot_name, num_timesteps):
     # Create the Hopper environment
@@ -18,34 +62,25 @@ def main(model_name, plot_name, num_timesteps):
     model = SAC('MlpPolicy', env, verbose=1)
 
     # Train the model
-    model.learn(total_timesteps=num_timesteps, reset_num_timesteps=False)
-
-    # Collect rewards
-    rewards = []
-    for i in range(1, num_timesteps + 1):
-        mean_reward, _ = evaluate_policy(model, env, n_eval_episodes=1)
-        rewards.append(mean_reward)
-        print(f"Mean reward after {i} timesteps: {mean_reward}")
-
+    callback_ep = reward_callback()
+    
+    model.learn(total_timesteps=num_timesteps, reset_num_timesteps=False, callback_ep = callback_ep)
+    
     # Save the model
-    model.save("sim2real/model/" + model_name)
+    model.save("sim2real/models/" + model_name)
 
-    # Plot the rewards
-    plt.plot(range(1, num_timesteps + 1), rewards)
-    plt.xlabel('Timesteps')
-    plt.ylabel('Mean Reward')
-    plt.title('Training Progress')
-    plt.savefig("sim2real/plots/" + plot_name)
-    plt.show()
+    #episode_rewards = callback.get_rewards()
+    plot_rewards(callback_ep.get_rewards(), plot_name)
 
     # Evaluate the trained model
     mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=10)
     print(f"Mean reward: {mean_reward} +/- {std_reward}")
 
+    '''
     # Test the policy on the target environment
     target_env = gym.make('CustomHopper-target-v0')
     mean_reward, std_reward = evaluate_policy(model, target_env, n_eval_episodes=10)
-    print(f"Mean reward on target environment: {mean_reward} +/- {std_reward}")
+    print(f"Mean reward on target environment: {mean_reward} +/- {std_reward}") '''
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train a SAC model on the CustomHopper environment.')
