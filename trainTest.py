@@ -14,6 +14,7 @@ class RewardLoggerCallback(BaseCallback):
         super(RewardLoggerCallback, self).__init__(verbose)
         self.episode_rewards = []
         self.current_episode_reward = 0
+        self.episode_timesteps = []
 
     def _on_step(self) -> bool:
         # Verifica che "episode" sia nei locals
