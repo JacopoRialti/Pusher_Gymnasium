@@ -27,7 +27,7 @@ def main(model_name, plot_name, num_episodes, num_timesteps):
         print(f"Mean reward after {i*num_timesteps} timesteps: {mean_reward}")
 
     # Save the model
-    model.save("sim2real/model/" + model_name)
+    model.save("sim2real/models/" + model_name)
 
     # Plot the rewards
     plt.plot(range(1, num_episodes + 1), rewards)
