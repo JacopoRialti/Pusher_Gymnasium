@@ -4,13 +4,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 from env.custom_hopper import *
+from gym.envs.registration import register
 from stable_baselines3 import SAC
 from stable_baselines3.common.evaluation import evaluate_policy
 #from stable_baselines3.common.callbacks import BaseCallback  # Callback class for logging rewards
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.results_plotter import load_results, ts2xy
 
-
+# Register the custom Hopper environment
+register(
+    id="CustomHopper-source-v0",  # Nome dell'ambiente
+    entry_point="env.custom_hopper:CustomHopper",  # Modulo e classe dell'ambiente
+    max_episode_steps=10000,  # Numero massimo di passi per episodio
+)
 
 def create_model(args, env):
     model = SAC("MlpPolicy", env, verbose=1)
