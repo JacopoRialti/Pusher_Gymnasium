@@ -5,8 +5,6 @@ from env.custom_hopper import *
 from stable_baselines3 import SAC
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.evaluation import evaluate_policy
-
-def main(model_save_name, plot_save_name, num_episodes):
     # Create the Hopper environment
     env = gym.make('CustomHopper-source-v0')
 
@@ -20,20 +18,20 @@ def main(model_save_name, plot_save_name, num_episodes):
     # Train the model and collect rewards
     rewards = []
     for i in range(1, num_episodes + 1):
-        model.learn(total_timesteps=100, reset_num_timesteps=False)
+        model.learn(total_timesteps=num_timesteps, reset_num_timesteps=False)
         mean_reward, _ = evaluate_policy(model, env, n_eval_episodes=10)
         rewards.append(mean_reward)
-        print(f"Mean reward after {i*100} timesteps: {mean_reward}")
+        print(f"Mean reward after {i*num_timesteps} timesteps: {mean_reward}")
 
     # Save the model
-    model.save(model_save_name)
+    model.save("sim2real/model/" + model_name)
 
     # Plot the rewards
     plt.plot(range(1, num_episodes + 1), rewards)
-    plt.xlabel('Training Iteration (x10,000 timesteps)')
+    plt.xlabel(f'Training Iteration (x{num_timesteps} timesteps)')
     plt.ylabel('Mean Reward')
     plt.title('Training Progress')
-    plt.savefig(plot_save_name)
+    plt.savefig("sim2real/plots/" + plot_name)
     plt.show()
 
     # Evaluate the trained model
@@ -48,7 +46,8 @@ def main(model_save_name, plot_save_name, num_episodes):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train a SAC model on the CustomHopper environment.')
     parser.add_argument('--model_name', type=str, default='model_name', help='The name to save the trained model.')
-    parser.add_argument('--train_plot', type=str, default='train_plot.png', help='The name to save the training plot.')
+    parser.add_argument('--plot_name', type=str, default='plot_name.png', help='The name to save the training plot.')
     parser.add_argument('--num_episodes', type=int, default=10, help='The number of training episodes.')
+    parser.add_argument('--num_timesteps', type=int, default=10000, help='The number of timesteps per training iteration.')
     args = parser.parse_args()
-    main(args.model_name, args.train_plot, args.num_episodes)
+    main(args.model_name, args.plot_name, args.num_episodes, args.num_timesteps)
