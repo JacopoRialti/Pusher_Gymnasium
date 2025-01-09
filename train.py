@@ -3,55 +3,12 @@ import argparse
 import matplotlib.pyplot as plt
 from env.custom_hopper import *
 from stable_baselines3 import SAC
-from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.evaluation import evaluate_policy
-from stable_baselines3.common.monitor import Monitor
-from stable_baselines3.common.results_plotter import load_results, ts2xy
-import numpy as np
-import os
 
-# Register the custom environment
-gym.register(
-    id='CustomHopper-source-v0',
-    entry_point='env.custom_hopper:CustomHopperEnv',
-)
 
-def moving_average(values, window):
-    """
-    Smooth values by doing a moving average
-    :param values: (numpy array)
-    :param window: (int)
-    :return: (numpy array)
-    """
-    weights = np.repeat(1.0, window) / window
-    return np.convolve(values, weights, "valid")
-
-def plot_results(log_folder, model_save_name,  title="Learning Curve"):
-    """
-    plot the results
-
-    :param log_folder: (str) the save location of the results to plot
-    :param title: (str) the title of the task to plot
-    """
-    x, y = ts2xy(load_results(log_folder), "timesteps")
-    y = moving_average(y, window=50)
-    # Truncate x
-    x = x[len(x) - len(y):]
-
-    fig = plt.figure(title)
-    plt.plot(x, y)
-    plt.xlabel("Number of Timesteps")
-    plt.ylabel("Rewards")
-    plt.title(title + " Smoothed")
-    plt.show()
-    plt.savefig(title +model_save_name + ".png")
-
-def main(model_save_name, plot_save_name, total_timesteps):
+def main(model_name, plot_name, num_timesteps):
     # Create the Hopper environment
     env = gym.make('CustomHopper-source-v0')
-    log_dir = "sim2real_logs/"
-    os.makedirs(log_dir, exist_ok=True)
-    env = Monitor(env, log_dir)
 
     print('State space:', env.observation_space)  # state-space
     print('Action space:', env.action_space)  # action-space
@@ -61,13 +18,25 @@ def main(model_save_name, plot_save_name, total_timesteps):
     model = SAC('MlpPolicy', env, verbose=1)
 
     # Train the model
-    model.learn(total_timesteps=total_timesteps)
+    model.learn(total_timesteps=num_timesteps, reset_num_timesteps=False)
+
+    # Collect rewards
+    rewards = []
+    for i in range(1, num_timesteps + 1):
+        mean_reward, _ = evaluate_policy(model, env, n_eval_episodes=1)
+        rewards.append(mean_reward)
+        print(f"Mean reward after {i} timesteps: {mean_reward}")
 
     # Save the model
-    model.save(model_save_name)
+    model.save("sim2real/model/" + model_name)
 
-    # Plot the results
-    plot_results(log_dir, model_save_name, title="Training Progress")
+    # Plot the rewards
+    plt.plot(range(1, num_timesteps + 1), rewards)
+    plt.xlabel('Timesteps')
+    plt.ylabel('Mean Reward')
+    plt.title('Training Progress')
+    plt.savefig("sim2real/plots/" + plot_name)
+    plt.show()
 
     # Evaluate the trained model
     mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=10)
@@ -81,7 +50,7 @@ def main(model_save_name, plot_save_name, total_timesteps):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train a SAC model on the CustomHopper environment.')
     parser.add_argument('--model_name', type=str, default='model_name', help='The name to save the trained model.')
-    parser.add_argument('--train_plot', type=str, default='train_plot.png', help='The name to save the training plot.')
-    parser.add_argument('--total_timesteps', type=int, default=100000, help='The total number of timesteps to train on.')
+    parser.add_argument('--plot_name', type=str, default='plot_name.png', help='The name to save the training plot.')
+    parser.add_argument('--num_timesteps', type=int, default=10000, help='The number of timesteps for training.')
     args = parser.parse_args()
-    main(args.model_name, args.train_plot, args.total_timesteps)
+    main(args.model_name, args.plot_name, args.num_timesteps)
