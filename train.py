@@ -20,10 +20,10 @@ def main(model_save_name, plot_save_name, num_episodes):
     # Train the model and collect rewards
     rewards = []
     for i in range(1, num_episodes + 1):
-        model.learn(total_timesteps=10000, reset_num_timesteps=False)
+        model.learn(total_timesteps=100, reset_num_timesteps=False)
         mean_reward, _ = evaluate_policy(model, env, n_eval_episodes=10)
         rewards.append(mean_reward)
-        print(f"Mean reward after {i*10000} timesteps: {mean_reward}")
+        print(f"Mean reward after {i*100} timesteps: {mean_reward}")
 
     # Save the model
     model.save(model_save_name)
