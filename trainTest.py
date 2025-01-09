@@ -50,7 +50,7 @@ def plot_results(log_folder,title):
     plt.savefig("sim2real/plots/" + title + ".png")
 
 
-def main(model_name, num_timesteps):
+def main():
     # Create the Hopper environment
     env = gym.make(args.env)
 
@@ -71,6 +71,7 @@ if __name__ == "__main__":
     parser.add_argument("--test", "-t", type=str, default=None, help="Model to be tested")
     parser.add_argument("--env", type=str, default="CustomHopper-source-v0", help="Environment to use")
     parser.add_argument("--total_timesteps", type=int, default=5000, help="The total number of samples to train on")
+    parser.add_argument("--model_name", type=str, default="sac_hopper", help="Name of the model to save")
    # parser.add_argument("--render_test", action='store_true', help="Render test")
    # parser.add_argument('--seed', default=0, type=int, help='Random seed')
   #  parser.add_argument('--algo', default='ppo', type=str, help='RL Algo [ppo, sac]')
