@@ -10,10 +10,6 @@ from stable_baselines3.common.callbacks import BaseCallback
 
 
 class RewardLoggerCallback(BaseCallback):
-    """
-    Callback per registrare le ricompense durante l'allenamento.
-    Salva i risultati in un file CSV e crea un grafico delle ricompense alla fine.
-    """
     def __init__(self, log_dir, plot_dir, verbose=0):
         super(RewardLoggerCallback, self).__init__(verbose)
         self.log_dir = log_dir
@@ -22,10 +18,15 @@ class RewardLoggerCallback(BaseCallback):
         self.episode_timesteps = []
 
     def _on_step(self) -> bool:
-        # Aggiungi la ricompensa dell'episodio corrente
+        # Verifica che "episode" sia nei locals
         if "episode" in self.locals:
-            self.episode_rewards.append(self.locals["episode"]["r"])
+            reward = self.locals["episode"]["r"]
+            self.episode_rewards.append(reward)
             self.episode_timesteps.append(self.num_timesteps)
+            if self.verbose > 0:
+                print(f"Timestep: {self.num_timesteps}, Reward: {reward}")
+        else:
+            print("Chiave 'episode' non trovata nei dati locali.")
         return True
 
     def _on_training_end(self) -> None:
@@ -38,8 +39,10 @@ class RewardLoggerCallback(BaseCallback):
             for t, r in zip(self.episode_timesteps, self.episode_rewards):
                 f.write(f"{t},{r}\n")
 
-        # Crea il grafico delle ricompense
-        self.plot_rewards()
+        if len(self.episode_rewards) > 0:
+            self.plot_rewards()
+        else:
+            print("Nessuna ricompensa registrata. Impossibile creare il grafico.")
 
     def plot_rewards(self):
         plt.figure()
@@ -52,6 +55,7 @@ class RewardLoggerCallback(BaseCallback):
         plt.savefig(plot_path)
         plt.close()
         print(f"Grafico delle ricompense salvato in {plot_path}")
+
 
 
 def create_model(args, env):
