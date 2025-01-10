@@ -52,7 +52,7 @@ def create_model(args, env):
     model = SAC(
         "MlpPolicy",
         env,
-        learning_rate= {"q": lr_q, "pi": lr_p},
+        learning_rate= {"qf": lr_q, "pi": lr_p},
         buffer_size=1000000,  # Replay buffer size
         learning_starts=10000,  # Number of steps before learning starts
         batch_size=256,  # Batch size for each gradient update
