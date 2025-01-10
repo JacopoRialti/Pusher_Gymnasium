@@ -7,6 +7,8 @@ from env.custom_hopper import *
 from stable_baselines3 import SAC
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.callbacks import EvalCallback
+from stable_baselines3.common.results_plotter import load_results, ts2xy
+
 
 model_dir = "./sim2real/models/"
 plot_dir = "./sim2real/plots/"
@@ -16,12 +18,16 @@ os.makedirs(plot_dir, exist_ok=True)
 os.makedirs(log_dir, exist_ok=True)
 
 
-import os
-import matplotlib.pyplot as plt
 
-def moving_average(data, window_size):
-    """Compute the moving average of a 1D array."""
-    return np.convolve(data, np.ones(window_size)/window_size, mode='valid')
+def moving_average(values, window):
+    """
+    Smooth values by doing a moving average
+    :param values: (numpy array)
+    :param window: (int)
+    :return: (numpy array)
+    """
+    weights = np.repeat(1.0, window) / window
+    return np.convolve(values, weights, "valid")
 
 def plot_rewards(data, plot_dir):
     """
@@ -30,13 +36,15 @@ def plot_rewards(data, plot_dir):
     timesteps = data['timesteps']
     rewards = data['rewards']
 
-    window_size = 50
-    mean_rewards = np.array([moving_average(rewards[:, i], window_size) for i in range(rewards.shape[1])]).mean(axis=0)
+    # Calculate the mean reward for each timestep across the 5 episodes
+    mean_rewards_per_timestep = rewards.mean(axis=1)
+
+    # Calculate the moving average of the mean rewards with a window size of 50
+    mean_rewards = moving_average(mean_rewards_per_timestep, window=50)
    
     plt.figure(figsize=(10, 6))
-    for i in range(rewards.shape[1]):
-        plt.plot(timesteps, rewards[:, i], label=f"Reward per timestep (Episode {i+1})", alpha=0.5)
-    plt.plot(timesteps[window_size-1:], mean_rewards, label="Mean reward", color='blue')
+    plt.plot(timesteps, mean_rewards_per_timestep, label="Mean reward per timestep", alpha=0.5)
+    plt.plot(timesteps[len(timesteps) - len(mean_rewards):], mean_rewards, label="Mean reward (50-timestep MA)", color='blue')
     plt.xlabel("Number of timesteps")
     plt.ylabel("Reward")
     plt.title("Reward during training")
