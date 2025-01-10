@@ -53,7 +53,6 @@ def plot_rewards(data, plot_dir):
 
 
 def main():
-    evaluation_file = os.path.join(log_dir, "evaluations.npz")
     plot_dir = "sim2real/plots"
     model_dir = "sim2real/models"
     log_dir = "logs"
