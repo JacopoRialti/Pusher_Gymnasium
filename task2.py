@@ -82,7 +82,7 @@ def train_model(args, env):
         eval_env,
         best_model_save_path=model_dir,
         log_path=log_dir,
-        eval_freq=5,
+        eval_freq=30,
         deterministic=True,
         render=False
     )
