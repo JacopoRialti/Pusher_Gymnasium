@@ -44,7 +44,7 @@ def plot_rewards(data, plot_dir):
     mean_rewards = moving_average(mean_rewards_per_timestep, window_size)
    
     plt.figure(figsize=(10, 6))
-    plt.plot(timesteps, mean_rewards_per_timestep, label="Mean reward per timestep", alpha=0.5)
+    plt.plot(timesteps, mean_rewards_per_timestep, label="Mean reward per timestep",color = "green", alpha=0.5)
     plt.plot(timesteps[window_size-1:], mean_rewards, label="Mean reward (50-timestep MA)", color='blue')
     plt.xlabel("Number of timesteps")
     plt.ylabel("Reward")
@@ -57,9 +57,6 @@ def plot_rewards(data, plot_dir):
     plt.savefig(plot_path)
     plt.show()
     print(f"Reward plot saved in {plot_path}")
-
-    # Print the array of mean rewards per timestep
-    print("Mean rewards per timestep:", mean_rewards_per_timestep)
 
 
 def create_model(args, env):
@@ -85,7 +82,7 @@ def train_model(args, env):
         eval_env,
         best_model_save_path=model_dir,
         log_path=log_dir,
-        eval_freq=30,
+        eval_freq=5,
         deterministic=True,
         render=False
     )
