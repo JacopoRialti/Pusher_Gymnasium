@@ -16,24 +16,31 @@ os.makedirs(plot_dir, exist_ok=True)
 os.makedirs(log_dir, exist_ok=True)
 
 
+import os
+import matplotlib.pyplot as plt
+
 def plot_rewards(data, plot_dir):
     """
-    Genera un grafico delle ricompense episodiche e lo salva nella directory specificata.
+    Generates a plot of episodic rewards and saves it to the specified directory.
     """
     timesteps = data['timesteps']
-    mean_rewards = data['rewards'].mean(axis=1)
+    rewards = data['rewards']
+    mean_rewards = rewards.mean(axis=1)
 
-    plt.figure()
-    plt.plot(timesteps, mean_rewards, label="Ricompensa per episodio")
-    plt.xlabel("Numero di timesteps")
-    plt.ylabel("Ricompensa")
-    plt.title("Ricompensa durante l'allenamento")
+    plt.figure(figsize=(10, 6))
+    plt.plot(timesteps, rewards, label="Reward per timestep", color='green', alpha=0.5)
+    plt.plot(timesteps, mean_rewards, label="Mean reward", color='blue')
+    plt.xlabel("Number of timesteps")
+    plt.ylabel("Reward")
+    plt.title("Reward during training")
     plt.legend()
+    plt.grid()
+
     os.makedirs(plot_dir, exist_ok=True)
     plot_path = os.path.join(plot_dir, "rewards_plot.png")
     plt.savefig(plot_path)
     plt.show()
-    print(f"Grafico delle ricompense salvato in {plot_path}")
+    print(f"Reward plot saved in {plot_path}")
 
 
 def create_model(args, env):
