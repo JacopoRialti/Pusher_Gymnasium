@@ -54,8 +54,8 @@ def plot_rewards(data, plot_dir):
 
 
 def main():
-    plot_dir = "sim2real/plots"
-    model_dir = "sim2real/models"
+    plot_dir = "project-sim2real-rialti-giunti-gjinaj/sim2real/plots"
+    model_dir = "project-sim2real-rialti-giunti-gjinaj/sim2real/models"
     log_dir = "logs"
 
     # Determine the environment based on the argument

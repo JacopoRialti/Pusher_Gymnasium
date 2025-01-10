@@ -7,7 +7,6 @@ from env.custom_hopper import *
 from stable_baselines3 import SAC
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.callbacks import EvalCallback
-from stable_baselines3.common.results_plotter import load_results, ts2xy
 
 
 model_dir = "./sim2real/models/"
