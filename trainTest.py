@@ -19,6 +19,10 @@ os.makedirs(log_dir, exist_ok=True)
 import os
 import matplotlib.pyplot as plt
 
+def moving_average(data, window_size):
+    """Compute the moving average of a 1D array."""
+    return np.convolve(data, np.ones(window_size)/window_size, mode='valid')
+
 def plot_rewards(data, plot_dir):
     """
     Generates a plot of episodic rewards and saves it to the specified directory.
@@ -27,11 +31,12 @@ def plot_rewards(data, plot_dir):
     rewards = data['rewards']
 
     window_size = 50
-    mean_rewards = np.convolve(rewards, np.ones(window_size)/window_size, mode='valid')
-
+    mean_rewards = np.array([moving_average(rewards[:, i], window_size) for i in range(rewards.shape[1])]).mean(axis=0)
+   
     plt.figure(figsize=(10, 6))
-    plt.plot(timesteps, rewards, label="Reward per timestep", color='green')
-    plt.plot(timesteps, mean_rewards, label="Mean reward", color='blue')
+    for i in range(rewards.shape[1]):
+        plt.plot(timesteps, rewards[:, i], label=f"Reward per timestep (Episode {i+1})", alpha=0.5)
+    plt.plot(timesteps[window_size-1:], mean_rewards, label="Mean reward", color='blue')
     plt.xlabel("Number of timesteps")
     plt.ylabel("Reward")
     plt.title("Reward during training")
