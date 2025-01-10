@@ -1,8 +1,9 @@
-import os
 import gym
 import argparse
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+from env.custom_hopper import *
 from stable_baselines3 import SAC
 from stable_baselines3.common.evaluation import evaluate_policy
 
