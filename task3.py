@@ -67,7 +67,7 @@ def main():
         raise ValueError("Invalid environment specified. Use 'source' or 'target'.")
 
     env = gym.make(env_name)
-    model_path = os.path.join(model_dir, args.model_name + ".zip")
+    model_path = os.path.join(model_dir, args.model_name)
     model= SAC.load(model_path)
 
     # Test the model on the specified environment
