@@ -55,14 +55,6 @@ def create_model(args, env):
     model = SAC(
         "MlpPolicy",
         env,
-        learning_rate= 3e-4,  # Learning rate
-        buffer_size=1000000,  # Replay buffer size
-        learning_starts=10000,  # Number of steps before learning starts
-        batch_size=256,  # Batch size for each gradient update
-        tau=0.005,  # Target smoothing coefficient
-        gamma=0.99,  # Discount factor
-        train_freq=1,  # Frequency of training
-        gradient_steps=1,  # Number of gradient steps
         verbose=1  # Verbosity level
         )
     return model
