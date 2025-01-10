@@ -81,7 +81,7 @@ def main():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--env", type=str, default=None, help="Ambiente da utilizzare")
+    parser.add_argument("--env", type=str, choices=['source', 'target'], default=None, help="Ambiente da utilizzare (source o target)")
     parser.add_argument("--total_timesteps", type=int, default=5000, help="Numero totale di timesteps per l'allenamento")
     parser.add_argument("--model_name", type=str, default="sac_hopper", help="Nome del modello da salvare")
     args = parser.parse_args()
