@@ -47,12 +47,10 @@ def plot_rewards(data, plot_dir):
 
 def create_model(args, env):
     """Crea il modello SAC con una politica MLP."""
-    lr_q = 3e-4  # Learning rate for the Q-network
-    lr_p = 1e-3  # Learning rate for the policy network
     model = SAC(
         "MlpPolicy",
         env,
-        learning_rate= {"pi": lr_p, "q": lr_q},
+        learning_rate= 3e-4,  # Learning rate
         buffer_size=1000000,  # Replay buffer size
         learning_starts=10000,  # Number of steps before learning starts
         batch_size=256,  # Batch size for each gradient update
