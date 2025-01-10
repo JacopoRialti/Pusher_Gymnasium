@@ -25,10 +25,12 @@ def plot_rewards(data, plot_dir):
     """
     timesteps = data['timesteps']
     rewards = data['rewards']
-    mean_rewards = rewards.mean(axis=1)
+
+    window_size = 50
+    mean_rewards = np.convolve(rewards, np.ones(window_size)/window_size, mode='valid')
 
     plt.figure(figsize=(10, 6))
-    plt.plot(timesteps, rewards, label="Reward per timestep", color='green', alpha=0.5)
+    plt.plot(timesteps, rewards, label="Reward per timestep", color='green')
     plt.plot(timesteps, mean_rewards, label="Mean reward", color='blue')
     plt.xlabel("Number of timesteps")
     plt.ylabel("Reward")
@@ -74,7 +76,7 @@ def train_model(args, env):
         eval_env,
         best_model_save_path=model_dir,
         log_path=log_dir,
-        eval_freq=50,
+        eval_freq=30,
         deterministic=True,
         render=False
     )
