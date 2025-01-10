@@ -96,5 +96,8 @@ def main():
     # Plot the training rewards
     plot_training_rewards(log_dir, plot_dir)
 
-if __name__ == 'main':
+
+
+
+if __name__ == '__main__':
     main()
