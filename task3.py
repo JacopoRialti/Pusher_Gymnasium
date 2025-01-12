@@ -61,10 +61,6 @@ def main():
     model_dir = "project-sim2real-rialti-giunti-gjinaj/sim2real/models"
     log_dir = "logs"
 
-    display = Display(visible=0, size=(1400, 900))
-    display.start()
-
-
     # Determine the environment based on the argument
     if args.env == "source":
         env_name = "CustomHopper-source-v0"
@@ -81,7 +77,18 @@ def main():
     mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=50)
     print(f"Mean reward: {mean_reward}, Std: {std_reward}")
 
-    render = args.render
+    if args.render:
+        render_video()
+
+    print('State space:', env.observation_space)  # spazio degli stati
+    print('Action space:', env.action_space)  # spazio delle azioni
+    print('Dynamics parameters:', env.get_parameters())  # parametri dinamici dell'Hopper
+
+
+
+def render_video():
+    display = Display(visible=0, size=(1400, 900))
+    display.start()
     n_episodes = 5  # Set to 1 for video recording
     frames = []
     
@@ -97,16 +104,11 @@ def main():
                 frame = env.render(mode='rgb_array')
                 frames.append(frame)
 
-    video_path = os.path.join(plot_dir, f"{args.model_name}_on_{args.env}.mp4")
+    video_path = os.path.join("sim2realtmp/plots", f"{args.model_name}_on_{args.env}.mp4")
     imageio.mimsave(video_path, frames, fps=30)
     print(f"Video saved at {video_path}")
 
     display.stop()
-
-    print('State space:', env.observation_space)  # spazio degli stati
-    print('Action space:', env.action_space)  # spazio delle azioni
-    print('Dynamics parameters:', env.get_parameters())  # parametri dinamici dell'Hopper
-
 
 
 if __name__ == "__main__":
