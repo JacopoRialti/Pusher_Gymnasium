@@ -11,9 +11,10 @@ from .mujoco_env import MujocoEnv
 from scipy.stats import truncnorm
 
 class CustomHopper(MujocoEnv, utils.EzPickle):
-    def __init__(self, domain=None):
+    def __init__(self, domain=None, udr=False):
         MujocoEnv.__init__(self, 4)
         utils.EzPickle.__init__(self)
+        self.udr = udr
 
         self.original_masses = np.copy(self.sim.model.body_mass[1:])    # Default link masses
 
@@ -29,9 +30,18 @@ class CustomHopper(MujocoEnv, utils.EzPickle):
 
     def sample_parameters(self):
         """Sample masses according to a domain randomization distribution
-        TODO
         """
-        return
+        torso = self.original_masses[0]
+        thigh = self.original_masses[1]
+        leg = self.original_masses[2]
+        foot = self.original_masses[3]
+
+        # Sample from a uniform distribution
+        thigh = np.random.uniform(thigh - thigh / 2, thigh + thigh / 2)
+        leg = np.random.uniform(leg - leg / 2, leg + leg / 2)
+        foot = np.random.uniform(foot - foot / 2, foot + foot / 2)
+
+        return np.array([torso, thigh, leg, foot])
 
     def get_parameters(self):
         """Get value of mass for each link"""
@@ -74,6 +84,9 @@ class CustomHopper(MujocoEnv, utils.EzPickle):
         """Reset the environment to a random initial state"""
         qpos = self.init_qpos + self.np_random.uniform(low=-.005, high=.005, size=self.model.nq)
         qvel = self.init_qvel + self.np_random.uniform(low=-.005, high=.005, size=self.model.nv)
+        if self.udr == True:
+            self.set_random_parameters()
+        
         self.set_state(qpos, qvel)
         return self._get_obs()
 
@@ -107,4 +120,12 @@ gym.envs.register(
         max_episode_steps=500,
         kwargs={"domain": "target"}
 )
+
+gym.envs.register(
+        id="CustomHopper-dr-v0",
+        entry_point="%s:CustomHopper" % __name__,
+        max_episode_steps=500,
+        kwargs={"domain": "source", "udr": "True"}
+)
+
 
