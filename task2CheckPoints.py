@@ -7,10 +7,12 @@ from env.custom_hopper import *
 from stable_baselines3 import SAC
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.callbacks import EvalCallback
+from google.colab import files
 
-model_dir = "./sim2real/models/"
-plot_dir = "./sim2real/plots/"
-log_dir = "./sim2real/logs/"
+
+model_dir = "./sim2realtmp/models/"
+plot_dir = "./sim2realtmp/plots/"
+log_dir = "./sim2realtmp/logs/"
 os.makedirs(model_dir, exist_ok=True)
 os.makedirs(plot_dir, exist_ok=True)
 os.makedirs(log_dir, exist_ok=True)
@@ -101,11 +103,13 @@ def train_model(args, env, hyperparameters):
         start_timesteps += remaining_timesteps
         model.save(checkpoint_path)
         print(f"Checkpoint saved at timestep {start_timesteps}")
+        files.download(checkpoint_path)  # Automatically download the checkpoint
 
     # Save the final model
     model_path = os.path.join(model_dir, args.model_name + ".zip")
     model.save(model_path)
     print(f"Modello salvato come {model_path}")
+    files.download(model_path)  # Automatically download the final model
 
     # Salva i log
     if reward_logger.evaluations_results is not None:
