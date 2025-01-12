@@ -89,7 +89,7 @@ def main():
 def render_video(model, env):
     display = Display(visible=0, size=(1400, 900))
     display.start()
-    n_episodes = 5  # Set to 1 for video recording
+    n_episodes = args.render_episodes  # Set to 1 for video recording
     frames = []
     
     for ep in range(n_episodes):  
@@ -117,5 +117,6 @@ if __name__ == "__main__":
     parser.add_argument("--total_timesteps", type=int, default=5000, help="Numero totale di timesteps per l'allenamento")
     parser.add_argument("--model_name", type=str, default="sac_hopper", help="Nome del modello da salvare")
     parser.add_argument("--render", type=bool, default=False, help="Se True, renderizza l'ambiente")
+    parser.add_argument("--render_episodes", type=int, default=1, help="Numero episodi per il video")
     args = parser.parse_args()
     main()
