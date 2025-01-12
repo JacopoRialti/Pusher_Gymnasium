@@ -6,6 +6,8 @@ import os
 from env.custom_hopper import *
 from stable_baselines3 import SAC
 from stable_baselines3.common.evaluation import evaluate_policy
+from pyvirtualdisplay import Display
+import imageio
 
 def moving_average(values, window):
     """
@@ -30,6 +32,7 @@ def plot_rewards(data, plot_dir):
     # Calculate the moving average of the mean rewards with a window size of 50
     window_size = 50
     mean_rewards = moving_average(mean_rewards_per_timestep, window_size)
+
 
     # Adjust timesteps to match the length of mean_rewards
     adjusted_timesteps = timesteps[window_size-1:]
@@ -58,6 +61,10 @@ def main():
     model_dir = "project-sim2real-rialti-giunti-gjinaj/sim2real/models"
     log_dir = "logs"
 
+    display = Display(visible=0, size=(1400, 900))
+    display.start()
+
+
     # Determine the environment based on the argument
     if args.env == "source":
         env_name = "CustomHopper-source-v0"
@@ -74,10 +81,32 @@ def main():
     mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=50)
     print(f"Mean reward: {mean_reward}, Std: {std_reward}")
 
+    render = args.render
+    n_episodes = 5  # Set to 1 for video recording
+    frames = []
+    
+    for ep in range(n_episodes):  
+        done = False
+        state = env.reset()  # Reset environment to initial state
+
+        while not done:  # Until the episode is over
+            action = model.predict(state, deterministic=True)[0]  # Use the model to predict the action
+            state, reward, done, info = env.step(action)  # Step the simulator to the next timestep
+
+            if render:
+                frame = env.render(mode='rgb_array')
+                frames.append(frame)
+
+    video_path = os.path.join(plot_dir, f"{args.model_name}_on_{args.env}.mp4")
+    imageio.mimsave(video_path, frames, fps=30)
+    print(f"Video saved at {video_path}")
+
+    display.stop()
+
     print('State space:', env.observation_space)  # spazio degli stati
     print('Action space:', env.action_space)  # spazio delle azioni
     print('Dynamics parameters:', env.get_parameters())  # parametri dinamici dell'Hopper
-    
+
 
 
 if __name__ == "__main__":
@@ -85,5 +114,6 @@ if __name__ == "__main__":
     parser.add_argument("--env", type=str, choices=['source', 'target'], default=None, help="Ambiente da utilizzare (source o target)")
     parser.add_argument("--total_timesteps", type=int, default=5000, help="Numero totale di timesteps per l'allenamento")
     parser.add_argument("--model_name", type=str, default="sac_hopper", help="Nome del modello da salvare")
+    parser.add_argument("--render", type=bool, default=False, help="Se True, renderizza l'ambiente")
     args = parser.parse_args()
     main()

@@ -60,9 +60,23 @@ def plot_rewards(data, plot_dir):
 
 def create_model(args, env):
     """Crea il modello SAC con una politica MLP."""
+    #Stiven Crea modelli, con hyperparameters diversi
+    hyperparameters = {
+        "learning_rate": 3e-4,
+        "batch_size": 256,
+        "buffer_size": 1000000,
+        "tau": 0.005,
+        "gamma": 0.99,
+        "train_freq": 1,
+        "gradient_steps": 1,
+        "learning_starts": 10000,
+        "ent_coef": 'auto'
+    }
+
     model = SAC(
         "MlpPolicy",
         env,
+        **hyperparameters,
         verbose=1  # Verbosity level
         )
     return model
@@ -86,6 +100,7 @@ def train_model(args, env):
         render=False
     )
 
+    
     # Avvia l'allenamento
     model.learn(total_timesteps=args.total_timesteps, callback=reward_logger)
 
@@ -107,6 +122,7 @@ def main():
     evaluation_file = os.path.join(log_dir, "evaluations.npz")
     # Crea l'ambiente Hopper
     env = gym.make(args.env)
+
 
     if args.test is None:
         model,reward_logger = train_model(args, env)

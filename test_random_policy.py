@@ -47,7 +47,7 @@ def main():
                 frame = env.render(mode='rgb_array')
                 frames.append(frame)
 
-    video_path = 'sim2real/plots/random_policy.mp4'
+    video_path = 'sim2realtmp/plots/random_policy.mp4'
     imageio.mimsave(video_path, frames, fps=30)
     print(f"Video saved at {video_path}")
     
