@@ -30,7 +30,7 @@ def main():
     print('Action space:', env.action_space)  # action-space
     print('Dynamics parameters:', env.get_parameters())  # masses of each link of the Hopper
 
-    n_episodes = 1
+    n_episodes = 70
     frames = []
 
 
