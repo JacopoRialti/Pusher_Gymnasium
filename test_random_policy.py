@@ -11,6 +11,8 @@
 import gym
 from env.custom_hopper import *
 from pyvirtualdisplay import Display
+import imageio
+
 
 
 def main():
@@ -28,7 +30,9 @@ def main():
     print('Action space:', env.action_space)  # action-space
     print('Dynamics parameters:', env.get_parameters())  # masses of each link of the Hopper
 
-    n_episodes = 500
+    n_episodes = 1
+    frames = []
+
 
     for ep in range(n_episodes):  
         done = False
@@ -40,7 +44,13 @@ def main():
             state, reward, done, info = env.step(action)  # Step the simulator to the next timestep
 
             if render:
-                env.render()
+                frame = env.render(mode='rgb_array')
+                frames.append(frame)
+
+    video_path = 'sim2real/plots/random_policy.mp4'
+    imageio.mimsave(video_path, frames, fps=30)
+    print(f"Video saved at {video_path}")
+    
     display.stop()
 
 
