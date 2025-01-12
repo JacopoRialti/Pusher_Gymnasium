@@ -77,6 +77,7 @@ def main():
     print('State space:', env.observation_space)  # spazio degli stati
     print('Action space:', env.action_space)  # spazio delle azioni
     print('Dynamics parameters:', env.get_parameters())  # parametri dinamici dell'Hopper
+    
 
 
 if __name__ == "__main__":

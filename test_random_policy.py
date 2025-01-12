@@ -10,8 +10,15 @@
 """
 import gym
 from env.custom_hopper import *
+from pyvirtualdisplay import Display
+
 
 def main():
+
+    # Start virtual display
+    display = Display(visible=0, size=(1400, 900))
+    display.start()
+
     render = True
 
     env = gym.make('CustomHopper-source-v0')
@@ -34,6 +41,7 @@ def main():
 
             if render:
                 env.render()
+    display.stop()
 
 
 if __name__ == '__main__':
