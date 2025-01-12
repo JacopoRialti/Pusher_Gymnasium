@@ -78,7 +78,7 @@ def main():
     print(f"Mean reward: {mean_reward}, Std: {std_reward}")
 
     if args.render:
-        render_video()
+        render_video(model, env)
 
     print('State space:', env.observation_space)  # spazio degli stati
     print('Action space:', env.action_space)  # spazio delle azioni
@@ -86,7 +86,7 @@ def main():
 
 
 
-def render_video():
+def render_video(model, env):
     display = Display(visible=0, size=(1400, 900))
     display.start()
     n_episodes = 5  # Set to 1 for video recording
@@ -100,9 +100,9 @@ def render_video():
             action = model.predict(state, deterministic=True)[0]  # Use the model to predict the action
             state, reward, done, info = env.step(action)  # Step the simulator to the next timestep
 
-            if render:
-                frame = env.render(mode='rgb_array')
-                frames.append(frame)
+            
+            frame = env.render(mode='rgb_array')
+            frames.append(frame)
 
     video_path = os.path.join("sim2realtmp/plots", f"{args.model_name}_on_{args.env}.mp4")
     imageio.mimsave(video_path, frames, fps=30)
