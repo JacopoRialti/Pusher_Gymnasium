@@ -7,10 +7,12 @@ from env.custom_hopper import *
 from stable_baselines3 import SAC
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.callbacks import EvalCallback
-from google.colab import files
+from google.colab import drive
 
+# Mount Google Drive
+drive.mount('/content/drive')
 
-
+# Define directories in Google Drive
 model_dir = "/content/drive/MyDrive/sim2real/models/"
 plot_dir = "/content/drive/MyDrive/sim2real/plots/"
 log_dir = "/content/drive/MyDrive/sim2real/logs/"
@@ -44,8 +46,8 @@ def plot_rewards(data, plot_dir):
     mean_rewards = moving_average(mean_rewards_per_timestep, window_size)
    
     plt.figure(figsize=(10, 6))
-    plt.plot(timesteps, mean_rewards_per_timestep, label="Reward per timestep", color="green", alpha=0.5)
-    plt.plot(timesteps[window_size-1:], mean_rewards, label="Mean reward", color='blue')
+    plt.plot(timesteps, mean_rewards_per_timestep, label="Mean reward per timestep", color="green", alpha=0.5)
+    plt.plot(timesteps[window_size-1:], mean_rewards, label="Mean reward (50-timestep MA)", color='blue')
     plt.xlabel("Number of timesteps")
     plt.ylabel("Reward")
     plt.title("Reward during training")
@@ -87,7 +89,7 @@ def train_model(args, env, hyperparameters):
     )
 
     # Checkpointing
-    checkpoint_interval = 100000  # Save checkpoint every 50,000 timesteps
+    checkpoint_interval = 1000  # Save checkpoint every 50,000 timesteps
     total_timesteps = args.total_timesteps
     start_timesteps = 0
 
@@ -105,13 +107,11 @@ def train_model(args, env, hyperparameters):
         start_timesteps += remaining_timesteps
         model.save(checkpoint_path)
         print(f"Checkpoint saved at timestep {start_timesteps}")
-        files.download(checkpoint_path)  # Automatically download the checkpoint
 
     # Save the final model
     model_path = os.path.join(model_dir, args.model_name + ".zip")
     model.save(model_path)
     print(f"Modello salvato come {model_path}")
-    files.download(model_path)  # Automatically download the final model
 
     # Salva i log
     if reward_logger.evaluations_results is not None:
