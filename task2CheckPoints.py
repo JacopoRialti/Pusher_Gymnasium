@@ -76,9 +76,9 @@ def save_training_state(checkpoint_path, model, reward_logger, start_timesteps):
     model.save(checkpoint_path)
     state = {
         'start_timesteps': int(start_timesteps),  # Convert to standard Python int
-        'evaluations_results': reward_logger.evaluations_results,  # Already a list
-        'evaluations_timesteps': reward_logger.evaluations_timesteps,  # Already a list
-        'evaluations_length': reward_logger.evaluations_length  # Already a list
+        'evaluations_results': reward_logger.evaluations_results.tolist(),  # Convert to list
+        'evaluations_timesteps': reward_logger.evaluations_timesteps.tolist(),  # Convert to list
+        'evaluations_length': reward_logger.evaluations_length.tolist()  # Convert to list
     }
     with open(checkpoint_path + '_state.json', 'w') as f:
         json.dump(state, f)
