@@ -10,9 +10,11 @@ from stable_baselines3.common.callbacks import EvalCallback
 from google.colab import files
 
 
-model_dir = "./sim2realtmp/models/"
-plot_dir = "./sim2realtmp/plots/"
-log_dir = "./sim2realtmp/logs/"
+
+model_dir = "/content/drive/MyDrive/sim2real/models/"
+plot_dir = "/content/drive/MyDrive/sim2real/plots/"
+log_dir = "/content/drive/MyDrive/sim2real/logs/"
+
 os.makedirs(model_dir, exist_ok=True)
 os.makedirs(plot_dir, exist_ok=True)
 os.makedirs(log_dir, exist_ok=True)
