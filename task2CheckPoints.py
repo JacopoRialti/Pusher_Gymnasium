@@ -9,8 +9,6 @@ from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.callbacks import EvalCallback
 from google.colab import drive
 
-# Mount Google Drive
-drive.mount('/content/drive')
 
 # Define directories in Google Drive
 model_dir = "/content/drive/MyDrive/sim2real/models/"
