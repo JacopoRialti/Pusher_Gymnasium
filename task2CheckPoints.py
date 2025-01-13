@@ -75,10 +75,10 @@ def save_training_state(checkpoint_path, model, reward_logger, start_timesteps):
     """Save the training state including the model and logs."""
     model.save(checkpoint_path)
     state = {
-        'start_timesteps': start_timesteps,
-        'evaluations_results': reward_logger.evaluations_results,
-        'evaluations_timesteps': reward_logger.evaluations_timesteps,
-        'evaluations_length': reward_logger.evaluations_length
+        'start_timesteps': int(start_timesteps),  # Convert to standard Python int
+        'evaluations_results': reward_logger.evaluations_results.tolist(),  # Convert to list
+        'evaluations_timesteps': reward_logger.evaluations_timesteps.tolist(),  # Convert to list
+        'evaluations_length': reward_logger.evaluations_length.tolist()  # Convert to list
     }
     with open(checkpoint_path + '_state.json', 'w') as f:
         json.dump(state, f)
@@ -98,10 +98,9 @@ def load_training_state(checkpoint_path, env):
         deterministic=True,
         render=False
     )
-    reward_logger.evaluations_results = state['evaluations_results']
-    reward_logger.evaluations_timesteps = state['evaluations_timesteps']
-    reward_logger.evaluations_length = state['evaluations_length']
-    reward_logger.evaluations_time = state['evaluations_time']
+    reward_logger.evaluations_results = np.array(state['evaluations_results'])  # Convert back to NumPy array
+    reward_logger.evaluations_timesteps = np.array(state['evaluations_timesteps'])  # Convert back to NumPy array
+    reward_logger.evaluations_length = np.array(state['evaluations_length'])  # Convert back to NumPy array
     print(f"Resuming training from timestep {start_timesteps}")
     return model, reward_logger, start_timesteps
 
