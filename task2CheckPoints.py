@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 from env.custom_hopper import *
+import zipfile
 from stable_baselines3 import SAC
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.callbacks import EvalCallback
@@ -93,10 +94,14 @@ def train_model(args, env, hyperparameters):
 
     # Load checkpoint if available
     checkpoint_path = os.path.join(model_dir, args.model_name + "_checkpoint")
-    if os.path.exists(checkpoint_path):
-        model = SAC.load(checkpoint_path, env=env)
-        start_timesteps = model.num_timesteps
-        print(f"Resuming training from timestep {start_timesteps}")
+    if os.path.exists(checkpoint_path) and zipfile.is_zipfile(checkpoint_path):
+        try:
+            model = SAC.load(checkpoint_path, env=env)
+            start_timesteps = model.num_timesteps
+            print(f"Resuming training from timestep {start_timesteps}")
+        except Exception as e:
+            print(f"Error loading checkpoint: {e}")
+            print("Starting training from scratch.")
 
     # Train the model with checkpointing
     while start_timesteps < total_timesteps:
