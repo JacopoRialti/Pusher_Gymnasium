@@ -11,8 +11,7 @@ from google.colab import drive
 import zipfile
 import json
 
-# Mount Google Drive
-drive.mount('/content/drive')
+
 
 # Define directories in Google Drive
 model_dir = "/content/drive/MyDrive/sim2real/models/"
