@@ -122,7 +122,7 @@ def train_model(args, env, hyperparameters):
     )
 
     # Checkpointing
-    checkpoint_interval = 50000  # Save checkpoint every 50,000 timesteps
+    checkpoint_interval = 1000  # Save checkpoint every 50,000 timesteps
     total_timesteps = args.total_timesteps
     start_timesteps = 0
 
