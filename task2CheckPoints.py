@@ -92,7 +92,7 @@ def train_model(args, env, hyperparameters):
     start_timesteps = 0
 
     # Load checkpoint if available
-    checkpoint_path = os.path.join(model_dir, args.model_name + "_checkpoint.zip")
+    checkpoint_path = os.path.join(model_dir, args.model_name + "_checkpoint")
     if os.path.exists(checkpoint_path):
         model = SAC.load(checkpoint_path, env=env)
         start_timesteps = model.num_timesteps
