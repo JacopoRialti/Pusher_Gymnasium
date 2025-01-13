@@ -78,8 +78,7 @@ def save_training_state(checkpoint_path, model, reward_logger, start_timesteps):
         'start_timesteps': start_timesteps,
         'evaluations_results': reward_logger.evaluations_results,
         'evaluations_timesteps': reward_logger.evaluations_timesteps,
-        'evaluations_length': reward_logger.evaluations_length,
-        'evaluations_time': reward_logger.evaluations_time
+        'evaluations_length': reward_logger.evaluations_length
     }
     with open(checkpoint_path + '_state.json', 'w') as f:
         json.dump(state, f)
