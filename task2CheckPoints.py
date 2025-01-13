@@ -42,8 +42,8 @@ def plot_rewards(data, plot_dir):
     mean_rewards = moving_average(mean_rewards_per_timestep, window_size)
    
     plt.figure(figsize=(10, 6))
-    plt.plot(timesteps, mean_rewards_per_timestep, label="Mean reward per timestep", color="green", alpha=0.5)
-    plt.plot(timesteps[window_size-1:], mean_rewards, label="Mean reward (50-timestep MA)", color='blue')
+    plt.plot(timesteps, mean_rewards_per_timestep, label="Reward per timestep", color="green", alpha=0.5)
+    plt.plot(timesteps[window_size-1:], mean_rewards, label="Mean reward", color='blue')
     plt.xlabel("Number of timesteps")
     plt.ylabel("Reward")
     plt.title("Reward during training")
