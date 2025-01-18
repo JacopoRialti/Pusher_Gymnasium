@@ -104,7 +104,7 @@ def render_video(model, env):
             frame = env.render(mode='rgb_array')
             frames.append(frame)
 
-    video_path = os.path.join("sim2realtmp/plots", f"{args.model_name}_on_{args.env}.mp4")
+    video_path = os.path.join("sim2realtmp/plots", f"video_{args.model_name}_on_{args.env}.mp4")
     imageio.mimsave(video_path, frames, fps=30)
     print(f"Video saved at {video_path}")
 
