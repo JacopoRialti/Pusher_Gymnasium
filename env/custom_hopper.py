@@ -48,9 +48,9 @@ class CustomHopper(MujocoEnv, utils.EzPickle):
         masses = np.array( self.sim.model.body_mass[1:] )
         return masses
 
-    def set_parameters(self, task):
-        """Set each hopper link's mass to a new value"""
-        self.sim.model.body_mass[1:] = task
+    def set_parameters(self, torso, thigh, leg, foot):
+        """Set each hopper link's mass to new values."""
+        self.sim.model.body_mass[1:] = np.array([torso, thigh, leg, foot])
 
     def step(self, a):
         """Step the simulation to the next timestep
@@ -125,7 +125,6 @@ gym.envs.register(
         id="CustomHopper-dr-v0",
         entry_point="%s:CustomHopper" % __name__,
         max_episode_steps=500,
-        kwargs={"domain": "source", "udr": "True"}
+        kwargs={"domain": "source", "udr": True}
 )
-
 
