@@ -6,8 +6,15 @@ import matplotlib.pyplot as plt
 from stable_baselines3 import SAC
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.callbacks import EvalCallback
+from env.custom_hopper import *
+from stable_baselines3.common.vec_env import SubprocVecEnv
 
-model_dir = "./sim2real/models/"
+def make_env(env_id):
+    def _init():
+        return gym.make(env_id)
+    return _init
+
+model_dir = "./sim2real/models"
 plot_dir = "./sim2real/plots/"
 log_dir = "./sim2real/logs/"
 os.makedirs(model_dir, exist_ok=True)
@@ -100,8 +107,9 @@ def train_model(args, env, hyperparameters):
 def main():
     evaluation_file = os.path.join(log_dir, "evaluations.npz")
     # Crea l'ambiente Hopper con UDR
-    env = gym.make("CustomHopper-dr-v0")
-
+    # env = gym.make("CustomHopper-dr-v0")
+    num_envs = 6
+    env = SubprocVecEnv([make_env("CustomHopper-dr-v0") for _ in range(num_envs)])
     # Define hyperparameters
     hyperparameters = {
         "learning_rate": 3e-4,
@@ -128,7 +136,6 @@ def main():
     # Test the trained policy on both source and target environments
     source_env = gym.make("CustomHopper-source-v0")
     target_env = gym.make("CustomHopper-target-v0")
-
     mean_reward_source, std_reward_source = evaluate_policy(model, source_env, n_eval_episodes=50)
     print(f"Source→Source: Mean reward: {mean_reward_source}, Std: {std_reward_source}")
 
