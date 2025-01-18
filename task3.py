@@ -38,8 +38,8 @@ def plot_rewards(data, plot_dir):
     adjusted_timesteps = timesteps[window_size-1:]
    
     plt.figure(figsize=(10, 6))
-    plt.plot(timesteps, mean_rewards_per_timestep, label="Mean reward per timestep", alpha=0.5)
-    plt.plot(adjusted_timesteps, mean_rewards, label="Mean reward (50-timestep MA)", color='blue')
+    plt.plot(timesteps, mean_rewards_per_timestep, label="Reward per timestep", alpha=0.5)
+    plt.plot(adjusted_timesteps, mean_rewards, label="Mean reward", color='blue')
     plt.xlabel("Number of timesteps")
     plt.ylabel("Reward")
     plt.title("Reward during training")

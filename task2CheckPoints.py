@@ -7,10 +7,17 @@ from env.custom_hopper import *
 from stable_baselines3 import SAC
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.callbacks import EvalCallback
+from google.colab import drive
+import zipfile
+import json
 
-model_dir = "./sim2real/models/"
-plot_dir = "./sim2real/plots/"
-log_dir = "./sim2real/logs/"
+
+
+# Define directories in Google Drive
+model_dir = "/content/drive/MyDrive/sim2real/models/"
+plot_dir = "/content/drive/MyDrive/sim2real/plots/"
+log_dir = "/content/drive/MyDrive/sim2real/logs/"
+
 os.makedirs(model_dir, exist_ok=True)
 os.makedirs(plot_dir, exist_ok=True)
 os.makedirs(log_dir, exist_ok=True)
@@ -64,11 +71,41 @@ def create_model(env, hyperparameters):
     )
     return model
 
+def save_training_state(checkpoint_path, model, reward_logger, start_timesteps):
+    """Save the training state including the model and logs."""
+    model.save(checkpoint_path)
+    state = {
+        'start_timesteps': int(start_timesteps),  # Convert to standard Python int
+        'evaluations_results': reward_logger.evaluations_results.tolist(),  # Convert to list
+        'evaluations_timesteps': reward_logger.evaluations_timesteps.tolist(),  # Convert to list
+        'evaluations_length': reward_logger.evaluations_length.tolist()  # Convert to list
+    }
+    with open(checkpoint_path + '_state.json', 'w') as f:
+        json.dump(state, f)
+    print(f"Checkpoint and state saved at timestep {start_timesteps}")
+
+def load_training_state(checkpoint_path, env):
+    """Load the training state including the model and logs."""
+    model = SAC.load(checkpoint_path, env=env)
+    with open(checkpoint_path + '_state.json', 'r') as f:
+        state = json.load(f)
+    start_timesteps = state['start_timesteps']
+    reward_logger = EvalCallback(
+        env,
+        best_model_save_path=model_dir,
+        log_path=log_dir,
+        eval_freq=30,
+        deterministic=True,
+        render=False
+    )
+    reward_logger.evaluations_results = np.array(state['evaluations_results'])  # Convert back to NumPy array
+    reward_logger.evaluations_timesteps = np.array(state['evaluations_timesteps'])  # Convert back to NumPy array
+    reward_logger.evaluations_length = np.array(state['evaluations_length'])  # Convert back to NumPy array
+    print(f"Resuming training from timestep {start_timesteps}")
+    return model, reward_logger, start_timesteps
+
 def train_model(args, env, hyperparameters):
     """Esegue l'allenamento del modello e utilizza la callback per registrare le ricompense."""
-
-    # Crea il modello
-    model = create_model(env, hyperparameters)
 
     # Crea ambiente per la valutazione
     eval_env = gym.make(args.env)
@@ -83,24 +120,34 @@ def train_model(args, env, hyperparameters):
     )
 
     # Checkpointing
-    checkpoint_interval = 50000  # Save checkpoint every 50,000 timesteps
+    checkpoint_interval = 1000  # Save checkpoint every 50,000 timesteps
     total_timesteps = args.total_timesteps
     start_timesteps = 0
 
-    # Load checkpoint if available
+    # Load checkpoint if available and valid
     checkpoint_path = os.path.join(model_dir, args.model_name + "_checkpoint.zip")
     if os.path.exists(checkpoint_path):
-        model = SAC.load(checkpoint_path, env=env)
-        start_timesteps = model.num_timesteps
-        print(f"Resuming training from timestep {start_timesteps}")
+        print(f"Checkpoint file {checkpoint_path} exists.")
+        if zipfile.is_zipfile(checkpoint_path):
+            try:
+                model, reward_logger, start_timesteps = load_training_state(checkpoint_path, env)
+            except Exception as e:
+                print(f"Error loading checkpoint: {e}")
+                print("Starting training from scratch.")
+                model = create_model(env, hyperparameters)
+        else:
+            print(f"Checkpoint file {checkpoint_path} is not a valid zip file.")
+            model = create_model(env, hyperparameters)
+    else:
+        print(f"Checkpoint file {checkpoint_path} does not exist.")
+        model = create_model(env, hyperparameters)
 
     # Train the model with checkpointing
     while start_timesteps < total_timesteps:
         remaining_timesteps = min(checkpoint_interval, total_timesteps - start_timesteps)
         model.learn(total_timesteps=remaining_timesteps, callback=reward_logger, reset_num_timesteps=False)
         start_timesteps += remaining_timesteps
-        model.save(checkpoint_path)
-        print(f"Checkpoint saved at timestep {start_timesteps}")
+        save_training_state(checkpoint_path, model, reward_logger, start_timesteps)
 
     # Save the final model
     model_path = os.path.join(model_dir, args.model_name + ".zip")
