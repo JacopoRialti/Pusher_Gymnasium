@@ -9,6 +9,7 @@ from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.callbacks import EvalCallback
 
 
+
 model_dir = "./sim2real/models/"
 plot_dir = "./sim2real/plots/"
 log_dir = "./sim2real/logs/"
@@ -41,7 +42,7 @@ def plot_rewards(data, plot_dir):
     # Calculate the moving average of the mean rewards with a window size of 50
     window_size = 50
     mean_rewards = moving_average(mean_rewards_per_timestep, window_size)
-   
+
     plt.figure(figsize=(10, 6))
     plt.plot(timesteps, mean_rewards_per_timestep, label="Mean reward per timestep",color = "green", alpha=0.5)
     plt.plot(timesteps[window_size-1:], mean_rewards, label="Mean reward", color='blue')
@@ -76,7 +77,7 @@ def create_model(args, env):
     model = SAC(
         "MlpPolicy",
         env,
-        **hyperparameters,
+        # **hyperparameters,
         verbose=1  # Verbosity level
         )
     return model
@@ -125,7 +126,7 @@ def main():
 
 
     if args.test is None:
-        model,reward_logger = train_model(args, env)
+        model, reward_logger = train_model(args, env)
         if os.path.exists(evaluation_file):
             data = np.load(evaluation_file)
             # timesteps, rewards = data["timesteps"], data["rewards"]
