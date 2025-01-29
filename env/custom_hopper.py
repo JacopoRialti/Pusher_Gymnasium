@@ -10,6 +10,7 @@ from gym import utils
 from .mujoco_env import MujocoEnv
 from scipy.stats import truncnorm
 
+
 class CustomHopper(MujocoEnv, utils.EzPickle):
     def __init__(self, domain=None, udr=False):
         MujocoEnv.__init__(self, 4)

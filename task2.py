@@ -29,6 +29,7 @@ def moving_average(values, window):
     weights = np.repeat(1.0, window) / window
     return np.convolve(values, weights, "valid")
 
+
 def plot_rewards(data, plot_dir):
     """
     Generates a plot of episodic rewards and saves it to the specified directory.
@@ -44,7 +45,7 @@ def plot_rewards(data, plot_dir):
     mean_rewards = moving_average(mean_rewards_per_timestep, window_size)
 
     plt.figure(figsize=(10, 6))
-    plt.plot(timesteps, mean_rewards_per_timestep, label="Reward per timestep",color = "green", alpha=0.5)
+    plt.plot(timesteps, mean_rewards_per_timestep, label="Reward per timestep", color = "green", alpha=0.5)
     plt.plot(timesteps[window_size-1:], mean_rewards, label="Mean reward", color='blue')
     plt.xlabel("Number of timesteps")
     plt.ylabel("Reward")
