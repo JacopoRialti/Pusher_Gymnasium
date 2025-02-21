@@ -1,41 +1,70 @@
-# Starting code for course project of Robot Learning - 01HFNOV
+# Applicazione dell'Apprendimento per Rinforzo nella Manipolazione Robotica
 
-Official assignment at [Google Doc](https://docs.google.com/document/d/1yA9Ta4rWlh2YcRfhtbeJp0TpS-2nUsKK8-wpp3iEj0M/edit?usp=sharing)
+## Sommario
+- [Introduzione](#introduzione)
+- [Dettagli dell'Ambiente](#dettagli-dell-ambiente)
+  - [Spazio degli Stati](#spazio-degli-stati)
+  - [Spazio delle Azioni](#spazio-delle-azioni)
+- [Algoritmi](#algoritmi)
+  - [Soft Actor-Critic (SAC)](#soft-actor-critic-sac)
+  - [Proximal Policy Optimization (PPO)](#proximal-policy-optimization-ppo)
+- [Ambienti Personalizzati](#ambienti-personalizzati)
+  - [Ostacoli Fissi](#ostacoli-fissi)
+  - [Ostacoli Randomizzati](#ostacoli-randomizzati)
+  - [Obiettivo Randomizzato](#obiettivo-randomizzato)
+- [Analisi delle Performance](#analisi-delle-performance)
+  - [Varianti di Densità](#varianti-di-densita)
+- [Conclusioni](#conclusioni)
+- [Riferimenti](#riferimenti)
 
+## Introduzione
+Questo progetto indaga l'applicazione degli algoritmi di apprendimento per rinforzo nei compiti di manipolazione robotica, concentrandosi sui trade-off tra politiche specializzate e adattabili. Lo studio esamina specificamente l'ambiente Pusher della suite Gym, confrontando le performance degli algoritmi Soft Actor-Critic (SAC) e Proximal Policy Optimization (PPO) nell'addestramento di un braccio robotico per spingere oggetti verso posizioni target. Vengono esplorate varie modifiche ambientali, inclusi ostacoli fissi e randomizzati, posizioni dinamiche degli obiettivi e variazioni di densità.
 
-## Getting started
+## Dettagli dell'Ambiente
 
-Before starting to implement your own code, make sure to:
-1. read and study the material provided (see Section 1 of the assignment)
-2. read the documentation of the main packages you will be using ([mujoco-py](https://github.com/openai/mujoco-py), [Gym](https://github.com/openai/gym), [stable-baselines3](https://stable-baselines3.readthedocs.io/en/master/index.html))
-3. play around with the code in the template to familiarize with all the tools. Especially with the `test_random_policy.py` script.
+### Spazio degli Stati
+Lo spazio degli stati dell'ambiente Pusher è continuo e consiste di 20 variabili, che includono posizioni delle articolazioni, velocità, posizioni degli oggetti e posizioni degli obiettivi.
 
+### Spazio delle Azioni
+Lo spazio delle azioni è continuo e consiste di sette variabili, ciascuna rappresentante la coppia applicata a una specifica articolazione del braccio robotico.
 
-### 1. Local (Linux)
+## Algoritmi
 
-if you have a Linux system, you can work on the course project directly on your local machine. By doing so, you will also be able to render the Mujoco Hopper environment and visualize what is happening. This code has been tested on Linux with python 3.7.
+### Soft Actor-Critic (SAC)
+SAC è un algoritmo di apprendimento per rinforzo off-policy che ottimizza sia una rete di policy che una rete Q-function, incorporando la massimizzazione dell'entropia per incoraggiare l'esplorazione.
 
-**Dependencies**
-- Install MuJoCo and the Python Mujoco interface following the instructions here: https://github.com/openai/mujoco-py
-- Run `pip install -r requirements.txt` to further install `gym` and `stable-baselines3`.
+### Proximal Policy Optimization (PPO)
+PPO è un metodo on-policy che migliora la stabilità degli aggiornamenti delle politiche utilizzando una funzione obiettivo con limitazione dei clip, restrigendo gli aggiornamenti delle politiche entro un certo intervallo per prevenire cambiamenti drastici.
 
-Check your installation by launching `python test_random_policy.py`.
+## Ambienti Personalizzati
 
+### Ostacoli Fissi
+È stato creato un ambiente personalizzato con tre ostacoli fissi, che penalizza l'agente per le collisioni per incoraggiare l'apprendimento di una politica efficace.
 
-### 2. Local (Windows)
-As the latest version of `mujoco-py` is not compatible for Windows explicitly, you may:
-- Try installing WSL2 (requires fewer resources) or a full Virtual Machine to run Linux on Windows. Then you can follow the instructions above for Linux.
-- (not recommended) Try downloading a [previous version](https://github.com/openai/mujoco-py/blob/9ea9bb000d6b8551b99f9aa440862e0c7f7b4191/) of `mujoco-py`.
-- (not recommended) Stick to the Google Colab template (see below), which runs on the browser regardless of the operating system. This option, however, will not allow you to render the environment in an interactive window for debugging purposes.
+### Ostacoli Randomizzati
+Un ambiente con posizionamenti randomizzati degli ostacoli è stato progettato per migliorare l'adattabilità dell'agente, rendendolo più robusto in scenari dinamici.
 
+### Obiettivo Randomizzato
+Un setup con posizioni degli obiettivi randomizzate introduce un ulteriore livello di complessità, richiedendo all'agente di generalizzare il proprio comportamento per spostare con successo l'oggetto verso varie posizioni target.
 
-### 3. Google Colab
+## Analisi delle Performance
 
-You can also run the code on [Google Colab](https://colab.research.google.com/)
+### Varianti di Densità
+È stato analizzato l'impatto delle variazioni della densità degli oggetti e del braccio robotico. I risultati hanno mostrato che variazioni minori di densità non alterano significativamente le performance, mentre aumenti sostanziali influenzano la capacità dell'agente di completare i compiti.
 
-- Download all files contained in the `colab_template` folder in this repo.
-- Load the `test_random_policy.ipynb` file on [https://colab.research.google.com/](colab) and follow the instructions on it
+## Conclusioni
+Questa ricerca evidenzia l'importanza della variabilità ambientale nell'addestramento delle politiche di apprendimento per rinforzo, dimostrando che SAC supera PPO nell'ambiente Pusher. L'addestramento con ostacoli e obiettivi randomizzati porta a politiche più robuste e adattabili, utili per il trasferimento dalla simulazione alla realtà nella robotica.
 
-NOTE 1: rendering is currently **not** officially supported on Colab, making it hard to see the simulator in action. We recommend that each group manages to play around with the visual interface of the simulator at least once, to best understand what is going on with the underlying Hopper environment.
-
-NOTE 2: you need to stay connected to the Google Colab interface at all times for your python scripts to keep training.
+## Riferimenti
+1. R. S. Sutton and A. G. Barto, Reinforcement Learning: An Introduction (Second Edition).
+2. J. Kober, J. A. Bagnell, and J. Peters, “Reinforcement learning in robotics: A survey,” The International Journal of Robotics Research, 2013.
+3. P. Kormushev, S. Calinon, and D. G. Caldwell, “Reinforcement learning in robotics: Applications and real-world challenges,” 2013.
+4. S. H\" ofer, K. Bekris, A. Handa, J. C. Gamboa, F. Golemo, M. Mozian, ... and M. White, “Perspectives on sim2real transfer for robotics: A summary of the R: SS 2020 workshop,” 2020.
+5. J. Tobin, R. Fong, A. Ray, J. Schneider, W. Zaremba, and P. Abbeel, “Domain Randomization for Transferring Deep Neural Networks from Simulation to the Real World,” arXiv, Mar. 20, 2017.
+6. X. B. Peng, M. Andrychowicz, W. Zaremba, and P. Abbeel, “Sim-to-real transfer of robotic control with dynamics randomization,” 2018.
+7. T. Haarnoja, A. Zhou, P. Abbeel, and S. Levine, “Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor.”
+8. J. Schulman, F. Wolski, P. Dhariwal, A. Radford, and O. Klimov, “Proximal policy optimization algorithms,” 2017.
+9. Farama Foundation, “Pusher- Gymnasium Documentation,” Available: https://gymnasium.farama.org/environments/mujoco/pusher/.
+10. Y. Liu, K. L. Man, T. R. Payne, and Y. Yue, “Evaluating and Selecting Deep Reinforcement Learning Models for Optimal Dynamic Pricing: A Systematic Comparison of PPO, DDPG, and SAC,” Jan. 2024, doi: 10.1145/3640824.3640871.
+11. Stable-Baselines3 Docs- Reliable Reinforcement Learning Implementations https://stable-baselines3.readthedocs.io/en/master/
+12. MuJoco Documentation https://mujoco.readthedocs.io/en/stable/overview.html
